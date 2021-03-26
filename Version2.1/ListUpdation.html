@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!--React JS-->
+        <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+        <title>
+            Timer To Do List
+        </title>
+
+         <!--Boostrap CDN 4.6-->
+         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous"/>
+         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+         <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+         <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet"/>
+         <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.3.0/mdb.min.css" rel="stylesheet"/>
+         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.3.0/mdb.min.js"></script>
+
+         <!--Font Awsome CDN-->
+        <script src="https://use.fontawesome.com/a1f0c97a5a.js"></script>
+    </head>
+    <body>
+    <div class="container">
+    </div>
+    <script type="text/babel">
+
+    class App extends React.Component{
+        constructor(props){
+            super(props);
+            this.state={
+                tasks :[],
+                input : "",
+                value : "",
+                button : "Insert",
+                buttonType : "btn btn-success",
+                period: [],
+                index: -1,
+                count : 0
+            };
+        }
+
+        componentDidMount() { 
+                this.timerID = setInterval(
+                () => this.counter(),
+                1000
+                ); 
+        }
+
+        componentWillUnmount() {
+         clearInterval(this.timerID);
+        }
+
+
+        counter() {
+            if(this.state.tasks.length > 0)
+            {
+                let times=[...this.state.period]
+                for(let i=0;i<times.length;i++)
+                {     
+                    times[i]=times[i]-1;
+                }
+                this.setState(state =>({
+                    period : times
+                }));
+                while(times.includes(0))
+                {
+                    this.delete(0)
+                    times=[...this.state.period] 
+                }
+            }
+        }
+
+
+        render(){
+            return (
+            <div>
+                <h1>To do list</h1>
+                <table className="table table-hover">
+                    <thead><th>So No:</th><th>Tasks</th><th>Seconds left</th><th>Action</th></thead>
+                    <tbody>
+                    
+                {this.state.tasks.map((s,i) =>
+                    <tr key={i}>
+                    <td>{i+1}</td>
+                    <td>{s}</td>
+                    <td>{this.state.period[i]}</td>
+                    <td><button className="btn btn-primary" onClick={() => this.update(i)}><i class="fa fa-edit"></i> Edit</button></td>
+                    </tr>  
+                )}
+                  
+                  </tbody>
+                </table>
+                <div class="input-group mb-3">
+                <input className="form-control col-4" onKeyPress={this.enter} onChange={this.input} value={this.state.input}/>
+                <div class="input-group-append">
+                    <span class="input-group-text" id="basic-addon2">{this.state.count}</span>
+                </div>
+                </div><br/>
+                <button className={this.state.buttonType} onClick={this.insert}>{this.state.button}</button>
+            </div>
+            );
+        }
+        input = () =>{
+            this.setState(({
+                input: event.target.value
+            }))
+        }
+
+        delete(index){
+            let list1=[...this.state.tasks]
+            list1.splice(index,1)
+            let plist=[...this.state.period]
+            plist.splice(index,1)
+            this.setState(state =>(
+                {
+                tasks: list1,
+                period: plist,
+                count: state.count <= 0? 0:parseInt(state.count)-1
+            }))
+            alert("The task is deleting!..")
+        }
+
+        update(index){
+            this.setState({
+                input: this.state.tasks[index],
+                button: "Save",
+                index: index,
+                buttonType: "btn btn-info",
+            });
+        }
+
+        enter = (event) =>{
+            if(event.key === "Enter")
+            {
+                if(this.state.button === "Insert")
+                {
+                    this.setState(state =>({
+                        tasks :[...state.tasks, state.input],
+                        period :[...state.period, 20],
+                        count : parseInt(state.count)+1,
+                        input: ""
+                    }))
+                }
+                else
+                {
+                    let list=[...this.state.tasks];
+                    list[this.state.index]=this.state.input
+                    this.setState({
+                        tasks: list,
+                        button: "Insert",
+                        buttonType: "btn btn-success",
+                        input: ""
+                    })
+                }
+            }
+            
+        }
+
+        insert = () =>{
+            if(this.state.button === "Insert")
+            {
+                this.setState(state =>({
+                    tasks :[...state.tasks, state.input],
+                    count : state.count < 0? 0:parseInt(state.count)+1,
+                    period: [...state.period, 20],
+                    input: ""
+                }))
+            }
+            else
+            {
+                let list=[...this.state.tasks];
+                list[this.state.index]=this.state.input
+                this.setState({
+                    tasks: list,
+                    button: "Insert",
+                    buttonType: "btn btn-success",
+                    input: ""
+                })
+            }
+        }
+    }
+
+    ReactDOM.render(<App />,document.querySelector(".container"))
+    </script>
+    </body>
+</html>
